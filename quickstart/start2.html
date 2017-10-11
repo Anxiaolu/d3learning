@@ -9,7 +9,7 @@
 
 <body>
 <script type="text/javascript">
-    var data = [ // <-A
+var data = [ // <-A
         {expense: 10, category: "Retail"},
         {expense: 15, category: "Gas"},
         {expense: 30, category: "Retail"},
@@ -22,52 +22,42 @@
         {expense: 10, category: "Dining"},
         {expense: 8, category: "Gas"}
     ];
-    function render(data, category) {
-        d3.select("body").selectAll("div.h-bar") // <-B
+    function render(data) {
+        d3.select("#chart").selectAll("div.h-bar") // <-B
                 .data(data)
-            .enter()
-            .append("div")
-                .attr("class", "h-bar")
+            .enter().append("div")
+            .attr("class", "h-bar")
             .append("span");
-        d3.select("body").selectAll("div.h-bar") // <-C
+        d3.select("#chart").selectAll("div.h-bar") // <-C
                 .data(data)
             .exit().remove();
-        d3.select("body").selectAll("div.h-bar") // <-D
+        d3.select("#chart").selectAll("div.h-bar") // <-D
                 .data(data)
             .attr("class", "h-bar")
             .style("width", function (d) {
-                return (d.expense * 5) + "px";}
-            )
+                return (d.expense * 5) + "px";
+            })
             .select("span")
                 .text(function (d) {
                     return d.category;
                 });
-        d3.select("body").selectAll("div.h-bar")
-                .filter(function (d, i) { // <-E
-                    return d.category == category;
-                })
-                .classed("selected", true);
     }
     render(data);
-    function select(category) {
-        render(data, category);
+    function load(){ // <-E
+        /*d3.text("./data.json", function(error, json){ // <-F
+            data = data.concat(json);
+            render(data);
+        });*/
+        d3.request.send('localhost:8080/springMongo/data/getdata/getlikematch',{match_name: "西"},function(error,json){
+            data = data.concat(json);
+            console.log(json);
+            render(data);
+        });
     }
 </script>
 
 <div class="control-group">
-    <button onclick="select('Retail')">
-        Retail
-    </button>
-    <button onclick="select('Gas')">
-        Gas
-    </button>
-    <button onclick="select('Dining')">
-        Dining
-    </button>
-    <button onclick="select()">
-        Clear
-    </button>
+    <button onclick="load()">Load Data from JSON feed</button>
 </div>
-
 </body>
 </html>
